@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'org.example'
@@ -19,6 +20,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'net.datafaker:datafaker:2.7.0'
 
+    implementation 'net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE'
+
+  //  implementation 'com.salesforce.servicelibs:reactor-grpc-stub:1.2.4'
+  //  implementation 'io.projectreactor:reactor-core:3.6.0'
+
+    implementation 'io.grpc:grpc-netty-shaded:1.60.0'
+
+    implementation 'com.google.protobuf:protobuf-java:3.25.1'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -26,6 +37,30 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.25.1'
+    }
+
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
+        }
+
+        //reactorgrpc {
+        //    artifact = 'com.salesforce.servicelibs:protoc-gen-reactor-grpc:1.2.4'
+        //}
+    }
+
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+            //reactorgrpc {}
+        }
+    }
 }
 
 test {
