@@ -1,0 +1,29 @@
+
+server:
+  port: 666
+
+spring:
+  datasource:
+    pom:
+      url: jdbc:postgresql://localhost:5432/pom_db
+      username: postgres
+      password: postgres
+
+      driver-class-name: org.postgresql.Driver
+
+    gru:
+      url: jdbc:oracle:thin:@localhost:1521:xe
+      username: gru_user
+      password: gru_user
+
+      driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+app:
+  filespaths:
+    process-dir: D:/job/FoodCards/incoming
+    target-dir: D:/job/FoodCards
