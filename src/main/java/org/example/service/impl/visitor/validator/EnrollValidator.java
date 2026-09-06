@@ -82,6 +82,10 @@ public class EnrollValidator {
     }
 
     public boolean isValidFilename(Path filepath) {
+        if (filepath == null) {
+            return false;
+        }
+
         String filename = filepath.getFileName().toString();
 
         return FILENAME_PATTERN.matcher(filename).matches();
@@ -144,7 +148,7 @@ public class EnrollValidator {
             long dataBytes = fileLength - (HEADER_LINE_SIZE + TRAILER_LINE_SIZE);
 
             return (int) dataBytes / BODY_LINE_SIZE;
-
+//Stream count in Files
 
 
         } catch (IOException e) {
@@ -195,7 +199,7 @@ public class EnrollValidator {
     private boolean isValidAccount(String line) {
         String account = line.substring(100, 130).trim();
 
-        return StringUtils.isNotBlank(account) || NUMERIC_PATTERN.matcher(account).matches();
+        return StringUtils.isNotBlank(account) && NUMERIC_PATTERN.matcher(account).matches();
     }
 
     private boolean isValidOp(String line) {

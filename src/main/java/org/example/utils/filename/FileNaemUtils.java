@@ -10,11 +10,12 @@ import java.io.File;
 public class FileNaemUtils {
 
     public String removeExtension(String filename) {
+        String res = filename;
         for (FileStatus status : FileStatus.values()) {
-            StringUtils.removeEnd(filename, status.getExtension());
+            res = StringUtils.removeEnd(filename, status.getExtension());
         }
 
-        return filename;
+        return res;
     }
 
     public String addExtension(String filename, FileStatus status) {

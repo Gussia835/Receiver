@@ -9,7 +9,9 @@ import org.example.utils.enums.FileStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,38 +24,66 @@ public class FileManager {
 
 
     public Path getProcessPath() {
+
+
         return Paths.get(properties.getProcessDir());
+
     }
 
-    public Path appendChunk(String filename, byte[] chunk) {
+
+    public Path appendChunk(String filename, byte[] chunkData) {
+
         try {
 
-
-            Path dir = Paths.get(properties.getProcessDir());
+            Path dir = getProcessPath();
             Files.createDirectories(dir);
+            Path filepath = dir.resolve(filename);
 
-            Path tempPath = dir.resolve(filename + ".temp");
 
-            Files.write(tempPath, chunk, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Files.write(filepath, chunkData, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            return filepath;
 
-            return tempPath;
 
         } catch (IOException e) {
-            log.error("error of appending chunk");
-            throw new ReceivingFileException("error of appending chunk");
+            log.error("Failed to append gRPC chunk for file: {}", filename, e);
+            throw new ReceivingFileException("Failed to append gRPC chunk: " + e.getMessage());
         }
+    }
 
+
+    public Path saveChunk(String filename, InputStream requestStream) {
+
+        try {
+
+            Path dir = getProcessPath();
+            Files.createDirectories(dir);
+            Path filepath = dir.resolve(filename);
+
+            Files.copy(requestStream, filepath, StandardCopyOption.REPLACE_EXISTING);
+
+            return filepath;
+
+        } catch (IOException e) {
+
+            log.error("cant process chunk: {}", filename, e);
+            throw new ReceivingFileException("Failed to save chunked stream: " + e.getMessage());
+
+        }
     }
 
     public Path writeFile(String filename, MultipartFile file) {
-        Path dir = Paths.get(properties.getProcessDir());
+
+
         try {
+
+            Path dir = Paths.get(properties.getProcessDir());
             Files.createDirectories(dir);
-            Path filepath = dir.resolve(filename + ".temp");
+            Path filepath = dir.resolve(filename);
 
             file.transferTo(filepath.toFile());
 
-            return  filepath;
+            return filepath;
+
         } catch (IOException e) {
             throw new ReceivingFileException("receive chunk exception" + file.toString());
         }
@@ -61,6 +91,8 @@ public class FileManager {
 
 
     public Path moveToInProgress(Path sourcePath) {
+
+
         return moveToStatus(sourcePath, FileStatus.IN_PROGRESS);
     }
 
@@ -70,17 +102,19 @@ public class FileManager {
     }
 
 
-
     private Path moveToStatus(Path filepath, FileStatus status) {
 
-        Path target = getCurrDir(status);
-
-        String filename = filepath.getFileName().toString();
-        String newFilename = FileNaemUtils.replaceExtension(filename, status);
-
-        Path targetFile = target.resolve(newFilename);
-
         try {
+
+            Path target = getCurrDir(status);
+            Files.createDirectories(target);
+
+            String filename = filepath.getFileName().toString();
+            String newFilename = FileNaemUtils.replaceExtension(filename, status);
+
+            Path targetFile = target.resolve(newFilename);
+
+
             Files.createDirectories(target);
             Files.move(filepath, targetFile, StandardCopyOption.ATOMIC_MOVE);
 

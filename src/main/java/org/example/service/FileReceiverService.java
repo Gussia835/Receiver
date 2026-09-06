@@ -17,27 +17,40 @@ import java.nio.file.Path;
 @Service
 @RequiredArgsConstructor
 public class FileReceiverService {
+
+
     private final EnrollParserVisitor parserVisitor;
+
     private final FileManager fileManager;
+
     private final SaverDAO saver;
 
     private final EnrollValidator validator;
 
-    public void processFile(Path filepath) {
-        String filename = filepath.getFileName().toString();
 
+
+    public void processFile(Path filepath) {
+
+        String filename = filepath.getFileName().toString();
+        Path inProgressPath = fileManager.moveToInProgress(filepath);
+
+        log.info("filename: {}", filename, filename.length());
+
+        String uliDate = filename.substring(filename.length() - 3);
 
         PomFile pomFile = PomFile.builder()
                 .filename(filename)
-                .fullPath(filepath.getParent().toString())
+                .fullPath(inProgressPath.getParent().toString())
                 .fileStatus("IN_PROCESS")
-                .uliDate(java.time.format.DateTimeFormatter.ofPattern("yyyyDDD").format(java.time.LocalDate.now()))
+                .uliDate(uliDate)
                 .build();
 
         pomFile = saver.savePomFile(pomFile);
 
-        boolean isValidHeader = validator.validateHeader(filepath);
-        boolean isValidTrailer = validator.validateTrailer(filepath);
+
+
+        boolean isValidHeader = validator.validateHeader(inProgressPath);
+        boolean isValidTrailer = validator.validateTrailer(inProgressPath);
 
         if (!isValidHeader || !isValidTrailer) {
             log.warn("file is not valid header is valid: {}, trailer is valid: {}", isValidHeader, isValidTrailer);
@@ -46,9 +59,8 @@ public class FileReceiverService {
         parserVisitor.setContext(pomFile.getId(), isValidHeader, isValidTrailer);
 
 
-        try (BufferedReader reader = Files.newBufferedReader(filepath)) {
+        try (BufferedReader reader = Files.newBufferedReader(inProgressPath)) {
             String line;
-
 
             while ((line = reader.readLine()) != null) {
                 parserVisitor.visit(line);
@@ -56,7 +68,8 @@ public class FileReceiverService {
 
             pomFile.setFileStatus(isValidTrailer && isValidHeader ? "SUCCESS" : "ERROR");
             saver.savePomFile(pomFile);
-            fileManager.moveToFileResult(filepath, isValidHeader && isValidTrailer);
+
+            fileManager.moveToFileResult(inProgressPath, isValidHeader && isValidTrailer);
 
         } catch (Exception e) {
 
@@ -66,7 +79,7 @@ public class FileReceiverService {
 
             saver.savePomFile(pomFile);
 
-            fileManager.moveToFileResult(filepath, false);
+            fileManager.moveToFileResult(inProgressPath, false);
         }
     }
 }

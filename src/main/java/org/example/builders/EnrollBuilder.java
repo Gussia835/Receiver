@@ -7,6 +7,8 @@ import org.example.service.impl.visitor.dto.BodyDTO;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 
 @Component
@@ -56,10 +58,10 @@ public class EnrollBuilder {
         return GruVistaTab.builder()
             .systemAccount(dto.getAccount())
             .currency("222")
-            .xalfa(dto.getAmount())
+            .xalfa(new BigDecimal(dto.getAmount().trim()))
             .operation(dto.getOp_type())
             .pomId(null)
-            .uterario(generateUterario())
+            .uterario(new BigDecimal(generateUterario()))
             .addInfo(getAddInfo(dto.getOp_type()))
             .fileId(fileId)
             .focStatus("WAIT")
@@ -71,7 +73,7 @@ public class EnrollBuilder {
     public PomUnitError buildError(BodyDTO dto, Long fileId, String line, boolean isValid) {
         return PomUnitError.builder()
                 .unitId(null)
-                .errorSeq(1)
+                .errorSeq((short) 1)
                 .errorCode(getErrorCode(dto, isValid))
                 .errorField(line)
                 .errorMsg(getErrorMessage(dto, isValid))
@@ -85,14 +87,16 @@ public class EnrollBuilder {
     private String getErrorCode(BodyDTO dto, boolean isValid) {
         if (!isValid) {
 
-            return "ERR_FILE_INVALID";
+            return String.valueOf(HttpURLConnection.HTTP_BAD_REQUEST);
 
         } else if (dto.getAccount().isEmpty()) {
 
-            return "ERR_ACC";
+            return String.valueOf(HttpURLConnection.HTTP_BAD_REQUEST);
+        } else if (!dto.getOp_type().matches("DR|CR|ZR")) {
+            return String.valueOf(HttpURLConnection.HTTP_BAD_REQUEST);
         }
 
-        return "ERR_OP";
+        return String.valueOf(HttpURLConnection.HTTP_INTERNAL_ERROR);
 
     }
 

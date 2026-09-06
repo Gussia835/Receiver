@@ -3,6 +3,8 @@ package org.example.models.gru;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,22 +16,26 @@ import java.time.LocalDateTime;
 public class GruVistaTab {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gru_vista_seq")
-    @SequenceGenerator(name = "gru_vista_seq", sequenceName = "GRU.GRU_VISTA_SEQ")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "gru_vista_seq")
+    @SequenceGenerator(name = "gru_vista_seq",
+                        schema = "GRU",
+                        sequenceName = "GRU_VISTA_TAB_SEQ",
+                        allocationSize = 1)
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "SYSTEMACCOUNT", nullable = false, length = 30)
+    @Column(name = "SYSTEMACCOUNT", nullable = false, length = 32)
     private String systemAccount;
 
     @Column(name = "CURRENCY", nullable = false, length = 3)
     @Builder.Default
     private String currency = "222";
 
-    @Column(name = "XALFA", length = 20)
-    private String xalfa;
+    @Column(name = "XALFA", precision = 23, scale = 3)
+    private BigDecimal xalfa;
 
-    @Column(name = "OPERATION", nullable = false, length = 2)
+    @Column(name = "OPERATION", nullable = false, length = 3)
     private String operation;
 
     @CreationTimestamp
@@ -40,13 +46,13 @@ public class GruVistaTab {
     private Long pomId;
 
     @Column(name = "UTERRARIO", nullable = false, length = 18)
-    private String uterario;
+    private BigDecimal uterario;
 
     @Column(name = "OLDTBAL")
-    private String oldTbal;
+    private BigDecimal oldTbal;
 
     @Column(name = "NEWTBAL")
-    private String newTbal;
+    private BigDecimal newTbal;
 
     @Column(name = "ADD_INFO", length = 100)
     private String addInfo;
@@ -54,13 +60,16 @@ public class GruVistaTab {
     @Column(name = "FILE_ID", nullable = false)
     private Long fileId;
 
-    @Column(name = "FOC_STATUS", nullable = false, length = 10)
+
+    @Column(name = "FOC_STATUS", nullable = false, length = 64)
     @Builder.Default
     private String focStatus = "WAIT";
+
 
     @Column(name = "FOC_TS")
     private LocalDateTime focTs;
 
-    @Column(name = "FOC_TYPE", length = 20)
+
+    @Column(name = "FOC_TYPE", length = 10)
     private String focType;
 }

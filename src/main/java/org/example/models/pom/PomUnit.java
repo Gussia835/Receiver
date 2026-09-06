@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 public class PomUnit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pom_unit_seq")
-    @SequenceGenerator(name = "pom_unit_seq", sequenceName = "POM.UNIT_SEQ")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pom_unit_seq_gen")
+    @SequenceGenerator(name = "pom_unit_seq_gen", sequenceName = "POM_UNIT_SEQ", schema = "POM", allocationSize = 1)
     @Column(name = "ID")
     private Long id;
 
@@ -40,6 +40,6 @@ public class PomUnit {
     @Column(name = "UPD_TIME")
     private LocalDateTime updTime;
 
-    @Column(name = "ADD_VALUE", length = 500)
+    @Column(name = "ADD_VALUE", length = 100)
     private String addValue;
 }

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS pom.file
 (
-    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id           BIGINT DEFAULT nextval('POM.POM_FILE_SEQ')  PRIMARY KEY,
     ins_time     TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     filename     VARCHAR(40),
     fullpath     VARCHAR(120),

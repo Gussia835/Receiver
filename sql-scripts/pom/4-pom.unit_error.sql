@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS pom.unit_error
 (
-    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id          BIGINT DEFAULT nextval('POM.POM_UNIT_ERROR_SEQ') PRIMARY KEY,
     unit_id     BIGINT,
     error_seq   SMALLINT,
     error_code  VARCHAR(3),
