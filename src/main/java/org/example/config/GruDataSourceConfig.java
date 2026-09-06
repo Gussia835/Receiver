@@ -1,7 +1,7 @@
 package org.example.config;
 
-import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,17 +23,42 @@ import java.util.Map;
         entityManagerFactoryRef = "gruEntityManagerFactory",
         transactionManagerRef = "gruTransactionManager"
 )
+
 public class GruDataSourceConfig {
 
+    @Value("${receiver.datasource.gru.url}")
+    private String url;
+
+    @Value("${receiver.datasource.gru.username}")
+    private String user;
+
+    @Value("${receiver.datasource.gru.password}")
+    private String password;
+
+
+    @Value("${receiver.datasource.gru.driver-class-name}")
+    private String driverName;
+
     @Bean(name = "gruDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.gru")
+  //  @ConfigurationProperties(prefix = "receiver.datasource.gru")
+
     public DataSource dataSource() {
-        return DataSourceBuilder.create().build();
+
+        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+
+        dataSourceBuilder.driverClassName(driverName);
+        dataSourceBuilder.username(user);
+        dataSourceBuilder.password(password);
+        dataSourceBuilder.url(url);
+
+
+        return dataSourceBuilder.build();
     }
 
     @Bean(name = "gruEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("gruDataSource") DataSource dataSource,
-                                                                       EntityManagerFactoryBuilder builder) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(
+            EntityManagerFactoryBuilder builder,
+            @Qualifier("gruDataSource") DataSource dataSource) {
 
         return builder
                 .dataSource(dataSource)
@@ -44,9 +69,7 @@ public class GruDataSourceConfig {
 
     @Bean(name = "gruTransactionManager")
     public PlatformTransactionManager transactionManager(
-            @Qualifier("gruEntityManagerFactory") LocalContainerEntityManagerFactoryBean container) {
-        return new JpaTransactionManager(container.getObject());
+            @Qualifier("gruEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+        return new JpaTransactionManager(entityManagerFactory);
     }
-
-
 }
