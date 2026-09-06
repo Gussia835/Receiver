@@ -44,3 +44,4 @@ bin/
 
 server.crt
 server.key
+src/main/resources/keystore.p12

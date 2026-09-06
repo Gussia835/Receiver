@@ -2,6 +2,18 @@
 server:
   port: 666
 
+  ssl:
+    enabled: true
+
+    key-store: classpath:keystore.p12
+    key-store-type: PKCS12
+
+    key-store-password: 1111111
+    key-alias: tomcat
+
+
+
+
 grpc:
   server:
     port: 6666
@@ -10,29 +22,28 @@ receiver:
   datasource:
     pom:
 
-      url: jdbc:postgresql://localhost:5433/pom_db
-      username: postgres
+      url: jdbc:postgresql://localhost:5434/pom_db
+      username: pom
       password: postgres
 
       driver-class-name: org.postgresql.Driver
 
     gru:
-      url: jdbc:oracle:thin:@localhost:1521:xe
-      username: gru_user
+      url: jdbc:oracle:thin:@localhost:1521/XEPDB1
+      username: GRU
       password: gru_password
 
       driver-class-name: oracle.jdbc.OracleDriver
 
+spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
+    show-sql: true
+
 
 app:
   filespaths:
     process-dir: D:/job/FoodCards/incoming
     target-dir: D:/job/FoodCards
 
-
-
-receiver.datasource.gru.url: 123
