@@ -52,17 +52,12 @@ public class GrpcController extends FileReceiverGrpc.FileReceiverImplBase {
                 try {
                     log.info("Upload completed for file: {}", currFilename);
 
-                    Path targetPath = tempPath.resolveSibling(currFilename);
-                    Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-                    Path inprogressPath = fileManager.moveToInProgress(targetPath);
-
-                    service.processFile(inprogressPath);
+                    service.processFile(tempPath);
 
                     responseObs.onNext(ResponseGRPC.newBuilder()
                             .setStatus("SUCCESS")
                             .setFilename(currFilename)
-                            .setTotalBytes(Files.size(targetPath))
+                            .setTotalBytes(Files.size(tempPath))
                             .setMessage("File successfully received and processing started")
                             .build());
 

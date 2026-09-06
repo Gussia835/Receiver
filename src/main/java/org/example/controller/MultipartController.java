@@ -2,6 +2,7 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.service.impl.visitor.validator.EnrollValidator;
 import org.example.utils.filename.FileManager;
 import org.example.service.FileReceiverService;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/files")
@@ -22,26 +24,30 @@ public class MultipartController {
     private final FileReceiverService service;
     private final FileManager fileManager;
 
+    private final EnrollValidator validator;
+
     @PostMapping("multipart")
-    public ResponseEntity<String> getMultipart(@RequestParam("filename") String filename,
-                                               @RequestParam("file")MultipartFile file) {
+    public ResponseEntity<String> getMultipart(@RequestParam("file")MultipartFile file) {
 
 
 
         if (file.isEmpty()) {
-            log.error("error file is empty in multipart");
+            log.error("Error: file is empty in multipart");
             return ResponseEntity.badRequest().body("ERROR: file is empty");
         }
 
+        String filename = file.getOriginalFilename();
+        log.info("Received multipart file: {}", filename);
 
-        log.info("Received multipart file: {}", file.getOriginalFilename());
+        if (!validator.isValidFilename(Paths.get(filename))) {
+            log.error("Invalid filename format: {}", filename);
+            return ResponseEntity.badRequest().body("Invalid filename format");
+        }
 
 
         Path filepath = fileManager.writeFile(filename, file);
 
-
-        Path targetPath = fileManager.moveToInProgress(filepath);
-        service.processFile(targetPath);
+        service.processFile(filepath);
 
         return ResponseEntity.ok("File processed successful for multipart");
     }

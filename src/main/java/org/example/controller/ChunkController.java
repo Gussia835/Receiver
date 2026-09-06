@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/files")
@@ -23,33 +25,22 @@ public class ChunkController {
     private final EnrollValidator validator;
 
     @PostMapping("/chunk")
-    public ResponseEntity<String> getChunk(@RequestParam("filename") String filename,
-                                           @RequestParam(value = "isLast", required = true) Boolean isLast,
-                                           @RequestBody byte[] chunk
+    public ResponseEntity<String> getChunk(@RequestHeader("filename") String filename,
+                                           InputStream requestStream
                                            ) {
-        try {
-            log.debug("Received chunk for {}, size: {} bytes, isLast: {}", filename, chunk.length, isLast);
 
-            Path tempPath = fileManager.appendChunk(filename, chunk);
+        log.info("Received chunked stream for file: {}", filename);
 
-            if (isLast) {
-                log.info("Last chunk received for {}. Finalizing file...", filename);
-
-                Path targetPath = tempPath.resolveSibling(filename);
-                Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-                Path inProgressPath = fileManager.moveToInProgress(targetPath);
-                service.processFile(inProgressPath);
-
-                return ResponseEntity.ok("File fully uploaded and processing started");
-            }
-
-            return ResponseEntity.accepted().body("Chunk accepted");
-
-        } catch (IOException e) {
-            log.error("Failed to process chunk for file: {}", filename, e);
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        if (!validator.isValidFilename(Paths.get(filename))) {
+            log.error("Invalid filename format: {}", filename);
+            return ResponseEntity.badRequest().body("Invalid filename format");
         }
+
+
+        Path filepath = fileManager.saveChunk(filename, requestStream);
+        service.processFile(filepath);
+
+        return ResponseEntity.ok("File fully uploaded and processing started");
 
     }
 

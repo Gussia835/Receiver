@@ -34,8 +34,7 @@ public class ScanController {
             paths.filter(path -> {
                 String name = path.getFileName().toString();
 
-                return !name.endsWith(".temp") &&
-                        !name.endsWith(".success") &&
+                return !name.endsWith(".success") &&
                         !name.endsWith(".error") &&
                         !name.endsWith(".in_progress");
 
