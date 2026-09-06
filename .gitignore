@@ -38,3 +38,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+*.crt
+*.key
+
+server.crt
+server.key
