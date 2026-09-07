@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.example.grpc.proto.FileChunk;
-import org.example.grpc.proto.FileReceiverGrpc;
+import org.example.grpc.proto.GrpcServiceGrpc;
 import org.example.grpc.proto.ResponseGRPC;
 import org.example.service.FileReceiverService;
 import org.example.utils.filename.FileManager;
@@ -19,7 +19,7 @@ import java.nio.file.StandardCopyOption;
 @RequiredArgsConstructor
 @GrpcService
 @Slf4j
-public class GrpcController extends FileReceiverGrpc.FileReceiverImplBase {
+public class GrpcController extends GrpcServiceGrpc.GrpcServiceImplBase {
     private final FileManager fileManager;
     private final FileReceiverService service;
 
@@ -52,12 +52,14 @@ public class GrpcController extends FileReceiverGrpc.FileReceiverImplBase {
                 try {
                     log.info("Upload completed for file: {}", currFilename);
 
+                    long fileSize = Files.size(tempPath);
+
                     service.processFile(tempPath);
 
                     responseObs.onNext(ResponseGRPC.newBuilder()
                             .setStatus("SUCCESS")
                             .setFilename(currFilename)
-                            .setTotalBytes(Files.size(tempPath))
+                            .setTotalBytes(fileSize)
                             .setMessage("File successfully received and processing started")
                             .build());
 

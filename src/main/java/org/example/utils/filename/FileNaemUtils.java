@@ -12,7 +12,10 @@ public class FileNaemUtils {
     public String removeExtension(String filename) {
         String res = filename;
         for (FileStatus status : FileStatus.values()) {
-            res = StringUtils.removeEnd(filename, status.getExtension());
+            if (res.endsWith(status.getExtension())) {
+                res = res.substring(0, res.length() - status.getExtension().length());
+                break;
+            }
         }
 
         return res;
@@ -20,7 +23,10 @@ public class FileNaemUtils {
 
     public String addExtension(String filename, FileStatus status) {
 
-        return StringUtils.appendIfMissingIgnoreCase(filename, status.getExtension());
+        if (filename.endsWith(status.getExtension())) {
+            return filename;
+        }
+        return filename + status.getExtension();
 
     }
 

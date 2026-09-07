@@ -1,6 +1,7 @@
 package org.example.service.impl.visitor;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.builders.EnrollBuilder;
 import org.example.models.gru.GruVistaTab;
 import org.example.models.pom.PomUnit;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EnrollParserVisitor implements ParserVisitor {
 
     private static final int CREATED_START = 2;
@@ -84,6 +86,8 @@ public class EnrollParserVisitor implements ParserVisitor {
 
         if (validator.isHeaderLine(line)) {
 
+            log.debug("parse & save valid header: {}", line);
+
             HeaderDTO headerDTO = parseHeader(line);
 
             procTime = headerDTO.getProcTime();
@@ -98,29 +102,42 @@ public class EnrollParserVisitor implements ParserVisitor {
 
         if (validator.isTrailerLine(line)) {
 
+            log.debug("parse & save valid trailer: {}", line);
+
             TrailerDTO trailerDTO = parseTrailer(line);
 
             PomUnit trailerEntity = builder.buildPomUnitTrailer(fileId, line, isValidHeaderTrailer);
             saver.savePomUnit(trailerEntity);
 
             return true;
+        } else if (!validator.isTrailerLine(line)) {
+            log.error("invalid trailer {}", line);
         }
 
+
+        log.debug("parse & save body: {}", line);
 
         BodyDTO bodyDTO = parseBody(line);
 
         boolean isValidBody = isValidHeaderTrailer
                                 && validator.validateBody(line);
 
+        log.debug("body is valid: {}", isValidBody);
+
         PomUnit bodyEntity = builder.buildPomUnitBody(bodyDTO, fileId, line, isValidBody);
         PomUnit savedUnit = saver.savePomUnit(bodyEntity);
 
 
         if (isValidBody) {
+
+            log.error("valid body {}", line);
+
             GruVistaTab gru = builder.buildGru(bodyDTO, fileId, procTime, procType);
             gru.setPomId(savedUnit.getId());
             saver.saveGRU(gru);
         } else {
+            log.error("invalid body {}", line);
+
             PomUnitError error = builder.buildError(bodyDTO, fileId, line, isValidBody);
             error.setUnitId(savedUnit.getId());
             saver.saveError(error);
@@ -136,12 +153,16 @@ public class EnrollParserVisitor implements ParserVisitor {
     private HeaderDTO parseHeader(String line) {
 
         String createdStr = safeSubstring(line, CREATED_START, CREATED_END);
-        String processTimeStr = safeSubstring(line, PROCESS_TIME_START, PROCESS_TIME_END);
-
         LocalDateTime createdAt = LocalDateTime.parse(createdStr, DT_FORMATTER);
-        String procType = safeSubstring(line, PROC_START, PROC_END);
-        LocalDateTime procTime = LocalDateTime.parse(processTimeStr, DT_FORMATTER);
 
+        String procType = safeSubstring(line, PROC_START, PROC_END);
+
+        String processTimeStr = safeSubstring(line, PROCESS_TIME_START, PROCESS_TIME_END);
+        LocalDateTime procTime = null;
+
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(processTimeStr)) {
+            procTime = LocalDateTime.parse(processTimeStr, DT_FORMATTER);
+        }
 
         return new HeaderDTO(createdAt, procType, procTime);
     }

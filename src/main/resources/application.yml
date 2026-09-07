@@ -8,7 +8,7 @@ server:
     key-store: classpath:keystore.p12
     key-store-type: PKCS12
 
-    key-store-password: 1111111
+    key-store-password: 123456789
     key-alias: tomcat
 
 
@@ -17,6 +17,11 @@ server:
 grpc:
   server:
     port: 6666
+
+    security:
+      enabled: true
+      certificateChain: classpath:server.crt
+      privateKey: classpath:server.key
 
 receiver:
   datasource:

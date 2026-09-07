@@ -10,6 +10,7 @@ import org.example.utils.filename.FileManager;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -27,6 +28,8 @@ public class FileReceiverService {
 
     private final EnrollValidator validator;
 
+
+    private static final Charset FILE_CHARSET = Charset.forName("windows-1251");
 
 
     public void processFile(Path filepath) {
@@ -59,20 +62,23 @@ public class FileReceiverService {
         parserVisitor.setContext(pomFile.getId(), isValidHeader, isValidTrailer);
 
 
-        try (BufferedReader reader = Files.newBufferedReader(inProgressPath)) {
+        try (BufferedReader reader = Files.newBufferedReader(inProgressPath, FILE_CHARSET)) {
             String line;
 
             while ((line = reader.readLine()) != null) {
+                log.info("processing line {}", line);
                 parserVisitor.visit(line);
             }
 
             pomFile.setFileStatus(isValidTrailer && isValidHeader ? "SUCCESS" : "ERROR");
             saver.savePomFile(pomFile);
 
+            log.debug("moving to file result: result: {}", isValidHeader && isValidTrailer);
             fileManager.moveToFileResult(inProgressPath, isValidHeader && isValidTrailer);
 
         } catch (Exception e) {
 
+            log.error("exception while file processing {}", filename, e);
 
             pomFile.setFileStatus("ERROR");
             pomFile.setFileComment(e.getMessage());

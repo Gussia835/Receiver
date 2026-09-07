@@ -28,15 +28,20 @@ public class EnrollValidator {
     private static final int BODY_LINE_SIZE = BODY_LENGTH + 2;
     private static final int TRAILER_LINE_SIZE = TRAILER_LENGTH + 2;
 
-    private static final Pattern HEADER_PATTERN = Pattern.compile("^H .{8} .{6} .{9} .{8} .{6}$");
+    private static final Pattern HEADER_PATTERN = Pattern.compile("^H \\d{8} \\d{6} .{24}$");
+
+
     private static final Pattern TRAILER_PATTERN = Pattern.compile("^T\\s{9}\\s*\\d+$");
-    private static final Pattern BODY_PATTERN = Pattern.compile("^.{152,}$");
+
+    private static final Pattern BODY_PATTERN = Pattern.compile("^.{152}$");
 
 
     private static final Pattern PROC_TYPE_PATTERN = Pattern.compile("^(IMMEDIATE|IN-TIME)$");
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("^\\d+$");
 
-    private static final Pattern FILENAME_PATTERN = Pattern.compile("^Z\\d{3}\\d{3}\\.[A-Z]+_ENROLL\\d{3}\\d{3}\\d\\.\\d{3}$");
+    private static final Pattern FILENAME_PATTERN = Pattern.compile(
+                                                "^Z\\d{3}\\d{3}\\.[A-Z]+_ENROLL\\d{3}\\d{3}\\d\\.\\d{3}$"
+                                                        );
 
 
     public boolean validateHeader(Path filepath) {
@@ -60,7 +65,9 @@ public class EnrollValidator {
 
         try (BufferedReader reader = Files.newBufferedReader(filepath, FILE_CHARSET)) {
 
-           return reader.readLine();
+            String firstLine = reader.readLine();
+            log.info("read header: '{}', length: {}", firstLine, firstLine != null ? firstLine.length() : 0);
+            return firstLine;
 
         }
     }
@@ -130,6 +137,8 @@ public class EnrollValidator {
         int fileCount = Integer.parseInt(countStr);
         int actualCount = countLines(filepath);
 
+        log.info("line: {}, count: {}", lastLine, actualCount);
+
         if (fileCount != actualCount) {
             log.warn("Trailer count mismatch. Declared: {}, Actual: {}", fileCount, actualCount);
             return false;
@@ -146,6 +155,8 @@ public class EnrollValidator {
 
             long fileLength = Files.size(filepath);
             long dataBytes = fileLength - (HEADER_LINE_SIZE + TRAILER_LINE_SIZE);
+
+            log.info("fileLength: {}, dataBytes: {}, res: {}", fileLength, dataBytes, (int) dataBytes / BODY_LINE_SIZE);
 
             return (int) dataBytes / BODY_LINE_SIZE;
 //Stream count in Files
@@ -178,7 +189,7 @@ public class EnrollValidator {
         if (!pattern.matcher(line).matches()) {
 
 
-            log.warn("Invalid header format");
+            log.warn("Invalid header pattern");
             return false;
 
         }
