@@ -81,11 +81,16 @@ public class FileReceiverService {
             log.error("exception while file processing {}", filename, e);
 
             pomFile.setFileStatus("ERROR");
-            pomFile.setFileComment(e.getMessage());
+            String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            if (errorMsg.length() > 100) {
+                errorMsg = errorMsg.substring(0, 97) + "...";
+            }
+            pomFile.setFileComment(errorMsg);
 
             saver.savePomFile(pomFile);
-
             fileManager.moveToFileResult(inProgressPath, false);
+
+            throw new RuntimeException("Failed to process file: " + filename, e);
         }
     }
 }

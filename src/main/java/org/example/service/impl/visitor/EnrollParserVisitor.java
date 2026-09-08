@@ -110,8 +110,6 @@ public class EnrollParserVisitor implements ParserVisitor {
             saver.savePomUnit(trailerEntity);
 
             return true;
-        } else if (!validator.isTrailerLine(line)) {
-            log.error("invalid trailer {}", line);
         }
 
 
@@ -130,7 +128,7 @@ public class EnrollParserVisitor implements ParserVisitor {
 
         if (isValidBody) {
 
-            log.error("valid body {}", line);
+            log.debug("valid body {}", line);
 
             GruVistaTab gru = builder.buildGru(bodyDTO, fileId, procTime, procType);
             gru.setPomId(savedUnit.getId());

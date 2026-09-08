@@ -1,0 +1,70 @@
+2026-09-07 19:30:17.857 [grpc-default-executor-0] ERROR o.e.service.FileReceiverService - exception while file processing Z001032.GLAER_ENROLL0010321.249
+java.time.format.DateTimeParseException: Text '' could not be parsed at index 0
+	at java.base/java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:2108)
+	at java.base/java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:2010)
+	at java.base/java.time.LocalDateTime.parse(LocalDateTime.java:494)
+	at org.example.service.impl.visitor.EnrollParserVisitor.parseHeader(EnrollParserVisitor.java:153)
+	at org.example.service.impl.visitor.EnrollParserVisitor.visit(EnrollParserVisitor.java:91)
+	at org.example.service.FileReceiverService.processFile(FileReceiverService.java:70)
+	at org.example.controller.GrpcController$1.onCompleted(GrpcController.java:57)
+	at io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener.onHalfClose(ServerCalls.java:273)
+	at io.grpc.PartialForwardingServerCallListener.onHalfClose(PartialForwardingServerCallListener.java:35)
+	at io.grpc.ForwardingServerCallListener.onHalfClose(ForwardingServerCallListener.java:23)
+	at io.grpc.ForwardingServerCallListener$SimpleForwardingServerCallListener.onHalfClose(ForwardingServerCallListener.java:40)
+	at io.grpc.Contexts$ContextualizedServerCallListener.onHalfClose(Contexts.java:86)
+	at io.grpc.internal.ServerCallImpl$ServerStreamListenerImpl.halfClosed(ServerCallImpl.java:351)
+	at io.grpc.internal.ServerImpl$JumpToApplicationThreadServerStreamListener$1HalfClosed.runInContext(ServerImpl.java:861)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:133)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-09-07 19:48:13.584 [grpc-default-executor-0] ERROR o.e.service.FileReceiverService - exception while file processing Z001032.GLAER_ENROLL0010321.249
+java.time.format.DateTimeParseException: Text '' could not be parsed at index 0
+	at java.base/java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:2108)
+	at java.base/java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:2010)
+	at java.base/java.time.LocalDateTime.parse(LocalDateTime.java:494)
+	at org.example.service.impl.visitor.EnrollParserVisitor.parseHeader(EnrollParserVisitor.java:153)
+	at org.example.service.impl.visitor.EnrollParserVisitor.visit(EnrollParserVisitor.java:91)
+	at org.example.service.FileReceiverService.processFile(FileReceiverService.java:70)
+	at org.example.controller.GrpcController$1.onCompleted(GrpcController.java:57)
+	at io.grpc.stub.ServerCalls$StreamingServerCallHandler$StreamingServerCallListener.onHalfClose(ServerCalls.java:273)
+	at io.grpc.PartialForwardingServerCallListener.onHalfClose(PartialForwardingServerCallListener.java:35)
+	at io.grpc.ForwardingServerCallListener.onHalfClose(ForwardingServerCallListener.java:23)
+	at io.grpc.ForwardingServerCallListener$SimpleForwardingServerCallListener.onHalfClose(ForwardingServerCallListener.java:40)
+	at io.grpc.Contexts$ContextualizedServerCallListener.onHalfClose(Contexts.java:86)
+	at io.grpc.internal.ServerCallImpl$ServerStreamListenerImpl.halfClosed(ServerCallImpl.java:351)
+	at io.grpc.internal.ServerImpl$JumpToApplicationThreadServerStreamListener$1HalfClosed.runInContext(ServerImpl.java:861)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:133)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-09-07 20:30:26.597 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 20:30:26.605 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid body Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 23:19:00.209 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 23:19:00.220 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid body Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 23:27:11.708 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 23:27:11.716 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 23:27:48.579 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Mirtha Schmitt                                                                                      3566896554325852              ZR               13821
+2026-09-07 23:27:48.591 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Mirtha Schmitt                                                                                      3566896554325852              ZR               13821
+2026-09-07 23:27:48.609 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer August Torphy                                                                                       5888817206292081              ZR               78066
+2026-09-07 23:27:48.617 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body August Torphy                                                                                       5888817206292081              ZR               78066
+2026-09-07 23:27:48.627 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Marvel Casper                                                                                       0782758386152158              CR               96602
+2026-09-07 23:27:48.637 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Marvel Casper                                                                                       0782758386152158              CR               96602
+2026-09-07 23:27:48.646 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Maxie Streich                                                                                       4794981147454570              DR                4625
+2026-09-07 23:27:48.655 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Maxie Streich                                                                                       4794981147454570              DR                4625
+2026-09-07 23:27:48.667 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Jamey Fritsch                                                                                       5346093640652433              CR               14337
+2026-09-07 23:27:48.676 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Jamey Fritsch                                                                                       5346093640652433              CR               14337
+2026-09-07 23:27:48.685 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Celesta Weber IV                                                                                    4160156108752237              ZR               33437
+2026-09-07 23:27:48.694 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Celesta Weber IV                                                                                    4160156108752237              ZR               33437
+2026-09-07 23:27:48.705 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Aldo Donnelly                                                                                       0990153094909442              DR               85076
+2026-09-07 23:27:48.713 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Aldo Donnelly                                                                                       0990153094909442              DR               85076
+2026-09-07 23:27:48.723 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Shanika Franecki                                                                                    6699016222883426              CR               16523
+2026-09-07 23:27:48.732 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Shanika Franecki                                                                                    6699016222883426              CR               16523
+2026-09-07 23:27:48.743 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Ms. Miles Sipes                                                                                     5050055096299034              ZR               37867
+2026-09-07 23:27:48.756 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Ms. Miles Sipes                                                                                     5050055096299034              ZR               37867
+2026-09-07 23:27:48.771 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Lindsey Armstrong                                                                                   3012604485872213              DR               21941
+2026-09-07 23:27:48.782 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Lindsey Armstrong                                                                                   3012604485872213              DR               21941
+2026-09-07 23:27:56.862 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - invalid trailer Кузнецов Олег                                                                                       1000401000050003              DR                 777
+2026-09-07 23:27:56.870 [grpc-default-executor-0] ERROR o.e.s.i.visitor.EnrollParserVisitor - valid body Кузнецов Олег                                                                                       1000401000050003              DR                 777
