@@ -12,8 +12,13 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationTestAnnotationProcessor.extendsFrom annotationProcessor
+}
 
+dependencies {
     implementation group: 'com.oracle.database.jdbc', name: 'ojdbc10', version: '19.23.0.0'
     implementation group: 'com.oracle.database.nls', name: 'orai18n', version: '23.2.0.0'
     implementation 'org.postgresql:postgresql:42.7.13'
@@ -23,81 +28,76 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'net.datafaker:datafaker:2.7.0'
-
     implementation 'net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE'
-
-  //  implementation 'com.salesforce.servicelibs:reactor-grpc-stub:1.2.4'
-  //  implementation 'io.projectreactor:reactor-core:3.6.0'
-
     implementation 'io.grpc:grpc-netty-shaded:1.60.0'
-
     implementation 'com.google.protobuf:protobuf-java:3.25.1'
-    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:testcontainers'
-    testImplementation 'org.testcontainers:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
 }
 
 
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.25.1'
+sourceSets {
+    test {
+        java { srcDir 'src/test/java' }
+        resources { srcDir 'src/test/resources' }
     }
 
-    plugins {
-        grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
-        }
+    integrationTest {
+        java { srcDir 'src/integrationTest/java' }
+        resources { srcDir 'src/integrationTest/resources' }
 
-        //reactorgrpc {
-        //    artifact = 'com.salesforce.servicelibs:protoc-gen-reactor-grpc:1.2.4'
-        //}
-    }
 
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-            //reactorgrpc {}
-        }
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+
+        runtimeClasspath += output + compileClasspath
     }
+}
+
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    useJUnitPlatform()
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+
+    mustRunAfter test
 }
 
 test {
     useJUnitPlatform()
 }
 
-sourceSets {
-    integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/integrationalTest/java')
-        }
-        resources.srcDir file('src/integrationalTest/resources')
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.25.1'
     }
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntime.extendsFrom testRuntime
-}
-
-
-task integrationTest(type: Test) {
-    useJUnitPlatform()
-
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-
-    shouldRunAfter test
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.60.0'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
 }
 
 check.dependsOn integrationTest

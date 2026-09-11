@@ -13,7 +13,6 @@ server:
 
 
 
-
 grpc:
   server:
     port: 6666
@@ -45,6 +44,16 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+
+
+scheduler:
+  scan:
+    frequency: 10000
+
+  cleanup:
+    start: "0 0 2 * * ?"
+    lifespan: 30
+
 
 
 app:

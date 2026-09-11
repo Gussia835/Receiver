@@ -1,10 +1,29 @@
-FROM eclipse-temurin:21-jre-alpine
-
+FROM gradle:8.7-jdk21 AS builder
 WORKDIR /app
 
-COPY build/libs/*.jar app.jar
+COPY gradle ./gradle
+COPY gradlew build.gradle settings.gradle ./
+COPY src ./src
 
-EXPOSE 8080
+RUN chmod +x gradlew
 
-CMD ["java", "-jar", "app.jar"]
+RUN ./gradlew bootJar --no-daemon
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/Receiver-1.0-SNAPSHOT.jar app.jar
+
+EXPOSE 666 6666
+
+CMD ["java", \
+     "-Dspring.config.additional-location=file:/app/config/application.yml", \
+     "-Dlogging.config=file:/app/config/logback.xml", \
+     "-jar", "app.jar"]
+
+
+
+
+
+
 

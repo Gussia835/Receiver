@@ -42,6 +42,8 @@ bin/
 *.crt
 *.key
 
+
+logs/
 server.crt
 server.key
 src/main/resources/keystore.p12
