@@ -28,21 +28,15 @@ public class ScanController {
 
         try {
             int deletedCount = fileManager.deleteOldDirectories();
-
             log.info("Cleanup successful. Deleted {} old directories.", deletedCount);
-
         } catch (Exception e) {
-
             log.error("cant delete old directories", e);
         }
-
-
     }
 
 
     @Scheduled(fixedDelayString = "${scheduler.scan.frequency:10000}")
     public void scanDirectory() {
-
         log.info("directory is scanning right now");
 
         Path processDir = fileManager.getProcessPath();
@@ -52,11 +46,7 @@ public class ScanController {
             return;
         }
 
-
-
         try (Stream<Path> paths = Files.list(processDir)) {
-
-
 
             paths.filter(path -> {
                 String name = path.getFileName().toString();

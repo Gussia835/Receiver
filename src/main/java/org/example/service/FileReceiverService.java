@@ -37,7 +37,7 @@ public class FileReceiverService {
         String filename = filepath.getFileName().toString();
         Path inProgressPath = fileManager.moveToInProgress(filepath);
 
-        log.info("filename: {}", filename, filename.length());
+        log.info("filename: {} {}", filename, filename.length());
 
         String uliDate = filename.substring(filename.length() - 3);
 
