@@ -105,6 +105,7 @@ public class Constants {
     public static final String MSG_FILE_SIZE_ERROR = "File exception: cant find size of file";
 
     // Коды
+    public static final int HTTP_STATUS_METHOD_NOT_ALLOWED = 405;
     public static final int HTTP_STATUS_OK = 200;
     public static final int HTTP_STATUS_BAD_REQUEST = 400;
 }

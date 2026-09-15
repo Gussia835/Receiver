@@ -1,7 +1,6 @@
 package org.example;
 
 import io.restassured.builder.MultiPartSpecBuilder;
-import io.restassured.http.ContentType;
 import io.restassured.specification.MultiPartSpecification;
 import net.datafaker.Faker;
 import org.example.models.gru.GruVistaTab;
@@ -16,22 +15,18 @@ import org.example.utils.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
 
-import javax.swing.text.html.Option;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class MultipartControllerTest extends IntegrationalTest {
+public class MultipartIntegrationTest extends IntegrationalTest {
 
     @Autowired
     private PomFileRepository pomFileRepository;
@@ -50,6 +45,7 @@ public class MultipartControllerTest extends IntegrationalTest {
     private String validFileContent;
     private String invalidFilename;
     private String invalidFileContent;
+    private String multiBodyContent;
 
     private static final String CONTENT_TYPE = "text/plain";
     private static final Charset FILE_CHARSET = Charset.forName("windows-1251");
@@ -77,15 +73,23 @@ public class MultipartControllerTest extends IntegrationalTest {
                 fio, account, "DR", amount);
         String trailer = "T         1         ";
 
+        //валидный body
         validFileContent = header + "\r\n" +
                 body + "\r\n" +
                 trailer + "\r\n";
 
+        // невалидный body
         String invalidHeader = String.format("X %s IMMEDIATE               ",
                 currentTime);
         invalidFileContent = invalidHeader + "\r\n" +
                                 body + "\r\n" +
                                 trailer + "\r\n";
+
+        // несокльо body разной валидности
+        String validBody = String.format("%-100s%-30s%-2s%20s", fio, account, "DR", amount);
+        String invalidBody = String.format("%-100s%-30s%-2s%20s", "Иванов Иван", "1000401000050004", "XX", "500");
+        multiBodyContent = header + "\r\n" + validBody + "\r\n" + invalidBody + "\r\n" + "T         2         \r\n";
+
     }
 
     @BeforeEach
@@ -131,10 +135,10 @@ public class MultipartControllerTest extends IntegrationalTest {
     @Test
     void testInvalidFilename() {
         MultiPartSpecification multipart = new MultiPartSpecBuilder(validFileContent.getBytes(FILE_CHARSET))
-                .controlName("file")
-                .fileName(invalidFilename)
-                .mimeType(CONTENT_TYPE)
-                .build();
+                                                .controlName("file")
+                                                .fileName(invalidFilename)
+                                                .mimeType(CONTENT_TYPE)
+                                                .build();
 
         given()
                 .spec(requestSpec)
@@ -153,11 +157,10 @@ public class MultipartControllerTest extends IntegrationalTest {
     @Test
     void testEmptyFile() {
         MultiPartSpecification multipart = new MultiPartSpecBuilder(new byte[0])
-                .controlName("file")
-                .fileName(validFilename)
-                .mimeType(CONTENT_TYPE)
-                .build();
-
+                                                .controlName("file")
+                                                .fileName(validFilename)
+                                                .mimeType(CONTENT_TYPE)
+                                                .build();
         given()
                 .spec(requestSpec)
                 .multiPart(multipart)
@@ -174,11 +177,10 @@ public class MultipartControllerTest extends IntegrationalTest {
     @Test
     void testInvalidContentFile() {
         MultiPartSpecification multipart = new MultiPartSpecBuilder(invalidFileContent.getBytes(FILE_CHARSET))
-                .controlName("file")
-                .fileName(validFilename)
-                .mimeType(CONTENT_TYPE)
-                .build();
-
+                                                .controlName("file")
+                                                .fileName(validFilename)
+                                                .mimeType(CONTENT_TYPE)
+                                                .build();
         given()
                 .spec(requestSpec)
                 .multiPart(multipart)
@@ -200,5 +202,44 @@ public class MultipartControllerTest extends IntegrationalTest {
 
         List<GruVistaTab> grus = gruVistaTabRepository.findAll();
         assertThat(grus).isEmpty();
+    }
+
+    @Test
+    void testWrongMethod() {
+        given().spec(requestSpec)
+                .when()
+                .get("/files/multipart")
+                .then()
+                .statusCode(Constants.HTTP_STATUS_METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    void testSomeBodies() {
+        MultiPartSpecification multipart = new MultiPartSpecBuilder(
+                multiBodyContent.getBytes(FILE_CHARSET))
+                .controlName("file")
+                .fileName(validFilename)
+                .mimeType(CONTENT_TYPE)
+                .build();
+
+        given().spec(requestSpec)
+                .multiPart(multipart)
+                .when()
+                .post("/files/multipart")
+                .then()
+                .statusCode(Constants.HTTP_STATUS_OK);
+
+        Optional<PomFile> savedFile = pomFileRepository.findByFilename(validFilename);
+        assertThat(savedFile).isPresent();
+        assertThat(savedFile.get().getFileStatus()).isEqualTo(Constants.STATUS_ERROR);
+
+        List<PomUnit> units = pomUnitRepository.findAll();
+        assertThat(units).hasSize(4);
+
+        List<PomUnitError> errors = pomUnitErrorRepository.findAll();
+        assertThat(errors).hasSize(1);
+
+        List<GruVistaTab> grus = gruVistaTabRepository.findAll();
+        assertThat(grus).hasSize(1);
     }
 }
