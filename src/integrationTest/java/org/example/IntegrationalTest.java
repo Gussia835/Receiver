@@ -1,8 +1,12 @@
 package org.example;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.specification.RequestSpecification;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -15,12 +19,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.flyway.enabled=false",
-        "spring.liquibase.enabled=false",
-        "grpc.server.port=9999"
-})
 public abstract class IntegrationalTest {
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
@@ -37,27 +35,28 @@ public abstract class IntegrationalTest {
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
-
         registry.add("receiver.datasource.pom.url", postgres::getJdbcUrl);
-        registry.add("receiver.datasource.pom.username", postgres::getUsername);
-        registry.add("receiver.datasource.pom.password", postgres::getPassword);
-
         registry.add("receiver.datasource.gru.url", oracle::getJdbcUrl);
-        registry.add("receiver.datasource.gru.username", oracle::getUsername);
-        registry.add("receiver.datasource.gru.password", oracle::getPassword);
     }
 
     @LocalServerPort
     protected int httpPort;
+
+    @Autowired
+    protected GrpcServerProperties grpcPort;
 
     @BeforeAll
     static void setupRestAssuredLogging() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
 
+    protected RequestSpecification requestSpec;
+
     @BeforeEach
     void setUpRestAssuredAddress() {
-        RestAssured.port = httpPort;
-        RestAssured.baseURI = "http://localhost";
+        this.requestSpec = new RequestSpecBuilder()
+                .setBaseUri("http://localhost")
+                .setPort(this.httpPort)
+                .build();
     }
 }

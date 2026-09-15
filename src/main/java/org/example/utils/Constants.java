@@ -103,5 +103,9 @@ public class Constants {
     public static final String MSG_FAILED_SAVE_CHUNK = "Failed to save chunked stream";
     public static final String MSG_FAILED_MOVE_FILE = "Cannot move file";
     public static final String MSG_FILE_SIZE_ERROR = "File exception: cant find size of file";
+
+    // Коды
+    public static final int HTTP_STATUS_OK = 200;
+    public static final int HTTP_STATUS_BAD_REQUEST = 400;
 }
 

@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+grpc:
+  server:
+    port: 0
+
+receiver:
+  datasource:
+    pom:
+      username: test_pom
+      password: test_pom_password
+    gru:
+      username: GRU
+      password: gru_password
+
+app:
+  filespaths:
+    process-dir: /tmp/test-incoming
+    target-dir: /tmp/test-target

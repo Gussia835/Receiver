@@ -1,22 +1,15 @@
-
 server:
   port: 666
-
   ssl:
     enabled: true
-
     key-store: classpath:keystore.p12
     key-store-type: PKCS12
-
     key-store-password: 123456789
     key-alias: tomcat
-
-
 
 grpc:
   server:
     port: 6666
-
     security:
       enabled: true
       certificateChain: classpath:server.crt
@@ -25,18 +18,15 @@ grpc:
 receiver:
   datasource:
     pom:
-
       url: jdbc:postgresql://localhost:5434/pom_db
       username: pom
       password: postgres
-
       driver-class-name: org.postgresql.Driver
 
     gru:
       url: jdbc:oracle:thin:@localhost:1521/XEPDB1
       username: GRU
       password: gru_password
-
       driver-class-name: oracle.jdbc.OracleDriver
 
 spring:
@@ -45,16 +35,12 @@ spring:
       ddl-auto: validate
     show-sql: true
 
-
 scheduler:
   scan:
     frequency: 10000
-
   cleanup:
     start: "0 0 2 * * ?"
     lifespan: 30
-
-
 
 app:
   filespaths:
