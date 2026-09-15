@@ -10,7 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PomUnitError {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pom_unit_error_seq_gen")
     @SequenceGenerator(name = "pom_unit_error_seq_gen", sequenceName = "POM_UNIT_ERROR_SEQ", schema = "POM", allocationSize = 1)
@@ -34,5 +33,4 @@ public class PomUnitError {
 
     @Column(name = "FILE_ID", nullable = false)
     private Long fileId;
-
 }

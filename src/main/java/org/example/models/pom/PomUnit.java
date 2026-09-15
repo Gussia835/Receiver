@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PomUnit {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pom_unit_seq_gen")
     @SequenceGenerator(name = "pom_unit_seq_gen", sequenceName = "POM_UNIT_SEQ", schema = "POM", allocationSize = 1)

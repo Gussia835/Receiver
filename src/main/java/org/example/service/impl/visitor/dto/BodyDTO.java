@@ -9,13 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BodyDTO {
-
     private String fio;
-
     private String account;
-
     private String op_type;
-
     private String amount;
-
 }

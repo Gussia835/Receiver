@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PomFile {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pom_file_seq_gen")
     @SequenceGenerator(name = "pom_file_seq_gen", sequenceName = "POM_FILE_SEQ", schema = "POM", allocationSize = 1)

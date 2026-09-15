@@ -93,7 +93,6 @@ class GrpcControllerTest {
                     .setFilename(VALID_FILENAME)
                     .setData(com.google.protobuf.ByteString.copyFrom(CHUNK_DATA_1))
                     .build());
-
             verify(responseObserver).onError(any(Throwable.class));
             verify(service, never()).processFile(any());
         }
@@ -114,7 +113,6 @@ class GrpcControllerTest {
                     .setData(com.google.protobuf.ByteString.copyFrom(CHUNK_DATA_1))
                     .build());
             requestObserver.onCompleted();
-
             verify(responseObserver).onError(any(Throwable.class));
         }
     }

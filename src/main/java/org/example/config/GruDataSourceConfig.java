@@ -2,7 +2,6 @@ package org.example.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +13,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
@@ -25,7 +22,6 @@ import java.util.Map;
 )
 
 public class GruDataSourceConfig {
-
     @Value("${receiver.datasource.gru.url}")
     private String url;
 
@@ -35,22 +31,18 @@ public class GruDataSourceConfig {
     @Value("${receiver.datasource.gru.password}")
     private String password;
 
-
     @Value("${receiver.datasource.gru.driver-class-name}")
     private String driverName;
 
     @Bean(name = "gruDataSource")
-  //  @ConfigurationProperties(prefix = "receiver.datasource.gru")
 
     public DataSource dataSource() {
-
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
 
         dataSourceBuilder.driverClassName(driverName);
         dataSourceBuilder.username(user);
         dataSourceBuilder.password(password);
         dataSourceBuilder.url(url);
-
 
         return dataSourceBuilder.build();
     }

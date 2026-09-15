@@ -13,23 +13,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EnrollParserVisitorTest {
-
     @Mock
     private EnrollBuilder builder;
-
     @Mock
     private SaverDAO saver;
-
     @Mock
     private EnrollValidator validator;
-
     @InjectMocks
     private EnrollParserVisitor visitor;
 
@@ -39,7 +34,6 @@ class EnrollParserVisitorTest {
     private static final String INVALID_BODY_LINE = "Невалидная строка";
     private static final String VALID_TRAILER_LINE = "T                  1";
 
-
     @BeforeEach
     void setUp() {
         visitor.setContext(1L, true, true);
@@ -47,19 +41,13 @@ class EnrollParserVisitorTest {
 
     @Nested
     class HeaderParsingTests {
-
         @Test
         void validImmediateHeaderTest() {
-
-
             when(validator.isHeaderLine(VALID_HEADER_LINE)).thenReturn(true);
             when(builder.buildPomUnitHeader(any(), any(), anyBoolean())).thenReturn(new PomUnit());
             when(saver.savePomUnit(any())).thenReturn(new PomUnit());
 
-
-
             boolean result = visitor.visit(VALID_HEADER_LINE);
-
             assertThat(result).isTrue();
             verify(saver, times(1)).savePomUnit(any());
             verify(saver, never()).saveGRU(any());
@@ -68,15 +56,11 @@ class EnrollParserVisitorTest {
 
         @Test
         void validInTimeHeaderTest() {
-
-
             when(validator.isHeaderLine(VALID_IN_TIME_HEADER)).thenReturn(true);
-
             when(builder.buildPomUnitHeader(any(), any(), anyBoolean())).thenReturn(new PomUnit());
             when(saver.savePomUnit(any())).thenReturn(new PomUnit());
 
             boolean result = visitor.visit(VALID_IN_TIME_HEADER);
-
             assertThat(result).isTrue();
             verify(saver, times(1)).savePomUnit(any());
 
@@ -86,26 +70,19 @@ class EnrollParserVisitorTest {
 
     @Nested
     class BodyParsingTests {
-
         @Test
         void validBodyTest() {
-
             when(validator.isHeaderLine(VALID_BODY_LINE)).thenReturn(false);
             when(validator.isTrailerLine(VALID_BODY_LINE)).thenReturn(false);
             when(validator.validateBody(VALID_BODY_LINE)).thenReturn(true);
 
-
             PomUnit mockUnit = new PomUnit();
             mockUnit.setId(100L);
-
-
             when(builder.buildPomUnitBody(any(), any(), any(), anyBoolean())).thenReturn(mockUnit);
             when(saver.savePomUnit(any())).thenReturn(mockUnit);
             when(builder.buildGru(any(), any(), any(), any())).thenReturn(new GruVistaTab());
 
             boolean result = visitor.visit(VALID_BODY_LINE);
-
-
             assertThat(result).isTrue();
             verify(saver, times(1)).savePomUnit(any());
             verify(saver, times(1)).saveGRU(any());
@@ -116,11 +93,9 @@ class EnrollParserVisitorTest {
 
         @Test
         void invalidBodyTest() {
-
             when(validator.isHeaderLine(INVALID_BODY_LINE)).thenReturn(false);
             when(validator.isTrailerLine(INVALID_BODY_LINE)).thenReturn(false);
             when(validator.validateBody(INVALID_BODY_LINE)).thenReturn(false);
-
 
             PomUnit mockUnit = new PomUnit();
             mockUnit.setId(101L);
@@ -128,10 +103,7 @@ class EnrollParserVisitorTest {
             when(saver.savePomUnit(any())).thenReturn(mockUnit);
             when(builder.buildError(any(), any(), any(), anyBoolean())).thenReturn(new PomUnitError());
 
-
             boolean result = visitor.visit(INVALID_BODY_LINE);
-
-
             assertThat(result).isTrue();
             verify(saver, times(1)).savePomUnit(any());
             verify(saver, never()).saveGRU(any());
@@ -140,24 +112,16 @@ class EnrollParserVisitorTest {
 
         @Test
         void validBodyWithInvalidHeaderContextTest() {
-
             visitor.setContext(1L, false, true);
-
-
             when(validator.isHeaderLine(VALID_BODY_LINE)).thenReturn(false);
             when(validator.isTrailerLine(VALID_BODY_LINE)).thenReturn(false);
 
-
             PomUnit mockUnit = new PomUnit();
-
             when(builder.buildPomUnitBody(any(), any(), any(), anyBoolean())).thenReturn(mockUnit);
             when(saver.savePomUnit(any())).thenReturn(mockUnit);
             when(builder.buildError(any(), any(), any(), anyBoolean())).thenReturn(new PomUnitError());
 
-
-
             boolean result = visitor.visit(VALID_BODY_LINE);
-
             assertThat(result).isTrue();
             verify(saver, times(1)).savePomUnit(any());
             verify(saver, never()).saveGRU(any());
@@ -169,19 +133,13 @@ class EnrollParserVisitorTest {
 
     @Nested
     class TrailerParsingTests {
-
-
         @Test
         void validTrailerTest() {
-
             when(validator.isTrailerLine(VALID_TRAILER_LINE)).thenReturn(true);
             when(builder.buildPomUnitTrailer(any(), any(), anyBoolean())).thenReturn(new PomUnit());
             when(saver.savePomUnit(any())).thenReturn(new PomUnit());
 
-
             boolean result = visitor.visit(VALID_TRAILER_LINE);
-
-
             assertThat(result).isTrue();
             verify(saver, times(1)).savePomUnit(any());
             verify(saver, never()).saveGRU(any());

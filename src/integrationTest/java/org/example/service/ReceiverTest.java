@@ -105,25 +105,19 @@ class ReceiverTest {
     private static final Charset WIN_1251 = Charset.forName("windows-1251");
     private static final String VALID_FILENAME = "Z001032.GLAER_ENROLL0010321.249";
     private static final String INVALID_FILENAME = "Z001032.GLAER_ENROLL0010321.250";
-
     private static final String VALID_CONTENT = "H 20260907 182606 IMMEDIATE               \r\n" +
             "Кузнецов Олег                                                                                       1000401000050003              DR                 777\r\n" +
             "T                  1\r\n";
-
     private static final String INVALID_CONTENT = "X 20260907 182606 INVALID                 \r\n" +
             "Кузнецов Олег                                                                                       1000401000050003              DR                 777\r\n" +
             "T                  1\r\n";
 
     @Nested
     class SuccessTests {
-
         @Test
         void processValidFileAndSaveToAllTablesTest() throws Exception {
-
-
             Path testFile = tempDir.resolve(VALID_FILENAME);
             Files.writeString(testFile, VALID_CONTENT, WIN_1251);
-
             when(fileManager.moveToInProgress(any())).thenReturn(testFile);
             doNothing().when(fileManager).moveToFileResult(any(), anyBoolean());
 
@@ -133,26 +127,21 @@ class ReceiverTest {
             assertThat(savedFile).isPresent();
             assertThat(savedFile.get().getFileStatus()).isEqualTo("SUCCESS");
             assertThat(savedFile.get().getUliDate()).isEqualTo("249");
-
             List<PomUnit> units = pomUnitRepository.findAll();
             assertThat(units).hasSizeGreaterThanOrEqualTo(3);
 
             List<GruVistaTab> gruRecords = gruVistaTabRepository.findAll();
             assertThat(gruRecords).hasSize(1);
             assertThat(gruRecords.get(0).getSystemAccount()).isEqualTo("1000401000050003");
-
         }
     }
 
     @Nested
     class ErrorTests {
-
         @Test
         void processInvalidFileAndMarkAsErrorTest() throws Exception {
-
             Path testFile = tempDir.resolve(INVALID_FILENAME);
             Files.writeString(testFile, INVALID_CONTENT, WIN_1251);
-
             when(fileManager.moveToInProgress(any())).thenReturn(testFile);
             doNothing().when(fileManager).moveToFileResult(any(), anyBoolean());
 
@@ -161,7 +150,6 @@ class ReceiverTest {
             Optional<PomFile> savedFile = pomFileRepository.findByFilename(INVALID_FILENAME);
             assertThat(savedFile).isPresent();
             assertThat(savedFile.get().getFileStatus()).isEqualTo("ERROR");
-
         }
     }
 }

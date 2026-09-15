@@ -44,20 +44,15 @@ class ChunkControllerTest {
     private static final String INVALID_FILENAME = "invalid.txt";
     private static final byte[] CHUNK_DATA = "chunk data content".getBytes();
 
-
-
     @Nested
     class SuccessTests {
 
         @Test
         void validChunkedStreamTest() throws Exception {
-
             Path inProgressPath = tempDir.resolve("in_progress/" + VALID_FILENAME);
-
             when(validator.isValidFilename(any())).thenReturn(true);
             when(fileManager.saveChunk(eq(VALID_FILENAME), any())).thenReturn(inProgressPath);
             doNothing().when(service).processFile(any(Path.class));
-
 
             mockMvc.perform(post(ENDPOINT)
                             .header("filename", VALID_FILENAME)
@@ -65,47 +60,31 @@ class ChunkControllerTest {
                             .content(CHUNK_DATA))
                     .andExpect(status().isOk())
                     .andExpect(content().string("File fully uploaded and processing started"));
-
-
             verify(service, times(1)).processFile(inProgressPath);
-
         }
     }
 
-
-
     @Nested
     class ErrorTests {
-
         @Test
         void invalidFilenameTest() throws Exception {
-
             when(validator.isValidFilename(any())).thenReturn(false);
-
-
             mockMvc.perform(post(ENDPOINT)
                             .header("filename", INVALID_FILENAME)
                             .contentType(MediaType.APPLICATION_OCTET_STREAM)
                             .content(CHUNK_DATA))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("Invalid filename format"));
-
-
             verify(service, never()).processFile(any());
-
         }
 
         @Test
         void missingFilenameHeaderTest() throws Exception {
-
             mockMvc.perform(post(ENDPOINT)
                             .contentType(MediaType.APPLICATION_OCTET_STREAM)
                             .content(CHUNK_DATA))
                     .andExpect(status().isBadRequest());
-
-
             verify(service, never()).processFile(any());
-
         }
     }
 }

@@ -2,7 +2,6 @@ package org.example.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -12,11 +11,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import javax.sql.DataSource;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
@@ -25,7 +21,6 @@ import java.util.Map;
         transactionManagerRef = "pomTransactionManager"
 )
 public class PomDataSourceConfig {
-
     @Value("${receiver.datasource.pom.url}")
     private String url;
 
@@ -35,13 +30,11 @@ public class PomDataSourceConfig {
     @Value("${receiver.datasource.pom.password}")
     private String password;
 
-
     @Value("${receiver.datasource.pom.driver-class-name}")
     private String driverName;
 
     @Primary
     @Bean(name = "pomDataSource")
- //   @ConfigurationProperties(prefix = "receiver.datasource.pom")
     public DataSource dataSource() {
         return DataSourceBuilder.create()
                 .driverClassName(driverName)
@@ -54,11 +47,8 @@ public class PomDataSourceConfig {
     @Primary
     @Bean(name = "pomEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-            EntityManagerFactoryBuilder builder,
-            @Qualifier("pomDataSource") DataSource dataSource) {
-
-
-
+                                                EntityManagerFactoryBuilder builder,
+                                                @Qualifier("pomDataSource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
                 .packages("org.example.models.pom")
@@ -69,7 +59,7 @@ public class PomDataSourceConfig {
     @Primary
     @Bean(name = "pomTransactionManager")
     public PlatformTransactionManager transactionManager(
-            @Qualifier("pomEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+                                            @Qualifier("pomEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

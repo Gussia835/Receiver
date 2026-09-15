@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.exception.ReceivingFileException;
+import org.example.utils.Constants;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -17,218 +18,187 @@ import java.util.regex.Pattern;
 @Slf4j
 public class EnrollValidator {
 
-
-    private static final Charset FILE_CHARSET = Charset.forName("windows-1251");
-
-    private static final int HEADER_LENGTH = 42;
-    private static final int BODY_LENGTH = 152;
-    private static final int TRAILER_LENGTH = 20;
-
-    private static final int HEADER_LINE_SIZE = HEADER_LENGTH + 2;
-    private static final int BODY_LINE_SIZE = BODY_LENGTH + 2;
-    private static final int TRAILER_LINE_SIZE = TRAILER_LENGTH + 2;
-
-    private static final Pattern HEADER_PATTERN = Pattern.compile("^H \\d{8} \\d{6} .{24}$");
-
-
-    private static final Pattern TRAILER_PATTERN = Pattern.compile("^T\\s{9}\\s*\\d+$");
-
-    private static final Pattern BODY_PATTERN = Pattern.compile("^.{152}$");
-
-
-    private static final Pattern PROC_TYPE_PATTERN = Pattern.compile("^(IMMEDIATE|IN-TIME)$");
-    private static final Pattern NUMERIC_PATTERN = Pattern.compile("^\\d+$");
-
-    private static final Pattern FILENAME_PATTERN = Pattern.compile(
-                                                "^Z\\d{3}\\d{3}\\.[A-Z]+_ENROLL\\d{3}\\d{3}\\d\\.\\d{3}$"
-                                                        );
-
-
+    /**
+    Проверяет первую строку (Header) на валидность.
+    */
     public boolean validateHeader(Path filepath) {
         try {
-
             String firstLine = readFirstLine(filepath);
-
-            return isValidLen(firstLine, HEADER_LENGTH)
-                    && isValidPattern(firstLine, HEADER_PATTERN)
+            return isValidLen(firstLine, Constants.LEN_HEADER)
+                    && isValidPattern(firstLine, Constants.REGEX_HEADER)
                     && isValidProcTypeHeader(firstLine);
         } catch (IOException e) {
             log.error("cant read header");
-
             return false;
         }
     }
 
-
-
+    /**
+     Вспомогательная: Читает первую строку файла
+     */
     private String readFirstLine(Path filepath) throws IOException{
-
-        try (BufferedReader reader = Files.newBufferedReader(filepath, FILE_CHARSET)) {
-
+        try (var reader = Files.newBufferedReader(filepath, Constants.CHARSET_WINDOWS_1251)) {
             String firstLine = reader.readLine();
             log.info("read header: '{}', length: {}", firstLine, firstLine != null ? firstLine.length() : 0);
-            return firstLine;
 
+            return firstLine;
         }
     }
 
-
+    /**
+     Вспомогательная: Проверяет процедуру из хедера на валдиность
+     */
     private boolean isValidProcTypeHeader(String line) {
-
-        String procType = line.substring(18, 27).trim();
-
-        if (!PROC_TYPE_PATTERN.matcher(procType).matches()) {
-
+        String procType = line.substring(Constants.IDX_PROC_START, Constants.IDX_PROC_END).trim();
+        if (!Constants.REGEX_PROC_TYPE.matcher(procType).matches()) {
             log.warn("Invalid PROC_TYPE: {}", procType);
             return false;
-
         }
-
         return true;
-
     }
 
+    /**
+     Проверяет имя файла на валидность
+     */
     public boolean isValidFilename(Path filepath) {
         if (filepath == null) {
             return false;
         }
-
         String filename = filepath.getFileName().toString();
-
-        return FILENAME_PATTERN.matcher(filename).matches();
+        return Constants.REGEX_FILENAME.matcher(filename).matches();
     }
 
+    /**
+     Проверяет последнюю строку railer а валидность
+     */
     public boolean validateTrailer(Path filepath) {
         try {
             String lastLine = readLastLine(filepath);
-
-            return  (isValidLen(lastLine, TRAILER_LENGTH)
-                    && isValidPattern(lastLine, TRAILER_PATTERN)
-                    && isValidCount(lastLine, filepath));
-
-
+            return isValidLen(lastLine, Constants.LEN_TRAILER)
+                    && isValidPattern(lastLine, Constants.REGEX_TRAILER)
+                    && isValidCount(lastLine, filepath);
         } catch (IOException e) {
             log.error("Failed to read trailer", e);
             return false;
         }
     }
 
-
+    /**
+     Вспомогательная: читает строку последнюю trailer
+     */
     private String readLastLine(Path filepath) throws IOException {
-
         File file = filepath.toFile();
         long fileLength = file.length();
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            long startPos = fileLength - TRAILER_LINE_SIZE;
-
+            long startPos = fileLength - Constants.LINE_SIZE_TRAILER;
             raf.seek(startPos);
-            byte[] bytes = new byte[TRAILER_LENGTH];
-
+            byte[] bytes = new byte[Constants.LEN_TRAILER];
             raf.readFully(bytes);
-
-            return new String(bytes, FILE_CHARSET);
-
+            return new String(bytes, Constants.CHARSET_WINDOWS_1251);
         }
     }
 
+    /**
+     Вспомогательная: проверяет валидность числа в trailer
+     */
     private boolean isValidCount(String lastLine, Path filepath) {
-        String countStr = lastLine.substring(10, 20).trim();
+        String countStr = lastLine.substring(Constants.IDX_COUNT_START, Constants.IDX_COUNT_END).trim();
         int fileCount = Integer.parseInt(countStr);
         int actualCount = countLines(filepath);
-
         log.info("line: {}, count: {}", lastLine, actualCount);
 
         if (fileCount != actualCount) {
             log.warn("Trailer count mismatch. Declared: {}, Actual: {}", fileCount, actualCount);
             return false;
         }
-
-
         return true;
     }
 
-
+    /**
+     Вспомогательная: считает строки в файле
+     */
     private int countLines(Path filepath) {
         try {
-
-
             long fileLength = Files.size(filepath);
-            long dataBytes = fileLength - (HEADER_LINE_SIZE + TRAILER_LINE_SIZE);
+            long dataBytes = fileLength - (Constants.LINE_SIZE_HEADER + Constants.LINE_SIZE_TRAILER);
+            log.debug("fileLength: {}, dataBytes: {}, calculated lines: {}", fileLength, dataBytes, (int) dataBytes / Constants.LINE_SIZE_BODY);
 
-            log.info("fileLength: {}, dataBytes: {}, res: {}", fileLength, dataBytes, (int) dataBytes / BODY_LINE_SIZE);
-
-            return (int) dataBytes / BODY_LINE_SIZE;
-//Stream count in Files
-
-
+            return (int) (dataBytes / Constants.LINE_SIZE_BODY);
         } catch (IOException e) {
-            log.error("error: cant find size of file {}", filepath.getFileName().toString(), e);
-            throw new ReceivingFileException("file exception cant find size fo file");
+            log.error("Failed to get file size: {}", filepath.getFileName(), e);
+            throw new ReceivingFileException(filepath.getFileName().toString(), "get size of");
         }
-
     }
 
-
-
+    /**
+     Вспомогательная: проверяет длину на валидность
+     */
     private boolean isValidLen(String line, int len) {
         if (line == null || line.length() < len) {
-
-            log.warn("Header missing or too short");
+            log.warn("Line is missing or too short. Expected: {}, Actual: {}", len, line != null ? line.length() : 0);
             return false;
-
         }
 
         return true;
     }
 
 
-
-    private boolean isValidPattern(String line, Pattern pattern) {
-
-        if (!pattern.matcher(line).matches()) {
-
-
-            log.warn("Invalid header pattern");
-            return false;
-
-        }
-
-        return true;
-    }
-
-
-
+    /**
+     Проверяет строку
+     */
     public boolean validateBody(String line) {
-        return isValidLen(line, BODY_LENGTH)
-                && isValidPattern(line, BODY_PATTERN)
+        return isValidLen(line, Constants.LEN_BODY)
+                && isValidPattern(line, Constants.REGEX_BODY)
                 && isValidOp(line)
                 && isValidAccount(line);
-
     }
 
+    /**
+     Вспомогательная: проверяет формат строки на валдиность по паттерну
+     */
+    private boolean isValidPattern(String line, Pattern pattern) {
+        if (!pattern.matcher(line).matches()) {
+            log.warn("Line does not match expected pattern");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     Вспомогательная: проверяет поле аккаунта из body на валдиность
+     */
     private boolean isValidAccount(String line) {
-        String account = line.substring(100, 130).trim();
-
-        return StringUtils.isNotBlank(account) && NUMERIC_PATTERN.matcher(account).matches();
+        String account = line.substring(Constants.IDX_ACC_START, Constants.IDX_ACC_END).trim();
+        return StringUtils.isNotBlank(account)
+                && Constants.REGEX_NUMERIC.matcher(account).matches();
     }
 
+    /**
+     Вспомогательная: проверяет поле операции из body на валдиность
+     */
     private boolean isValidOp(String line) {
-        String opType = line.substring(130, 132).trim();
-        return "DR".equals(opType) || "CR".equals(opType) || "ZR".equals(opType);
+        String opType = line.substring(Constants.IDX_TYPE_START, Constants.IDX_TYPE_END).trim();
+        return Constants.OP_DR.equals(opType)
+                || Constants.OP_CR.equals(opType)
+                || Constants.OP_ZR.equals(opType);
     }
 
-
-
+    /**
+     проверяет является ли строка последней - trailer
+     */
     public boolean isTrailerLine(String line) {
         return line != null
-                && line.length() == TRAILER_LENGTH
-                && TRAILER_PATTERN.matcher(line).matches();
+                && line.length() == Constants.LEN_TRAILER
+                && Constants.REGEX_TRAILER.matcher(line).matches();
     }
 
+    /**
+     проверяет является ли строка первой - header
+     */
     public boolean isHeaderLine(String line) {
-        return line != null && line.length() >= HEADER_LENGTH && line.startsWith("H ");
+        return line != null
+                && line.length() >= Constants.LEN_HEADER
+                && line.startsWith("H ");
     }
-
-
 }

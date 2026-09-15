@@ -11,9 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 public class HeaderDTO {
-
     private LocalDateTime createdAt;
     private String procType;
     private LocalDateTime procTime;
-
 }

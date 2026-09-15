@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MultipartController.class)
 class MultipartControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,32 +43,23 @@ class MultipartControllerTest {
 
     private static final String ENDPOINT = "/files/multipart";
     private static final Charset WIN_1251 = Charset.forName("windows-1251");
-
     private static final String VALID_FILENAME = "Z001032.GLAER_ENROLL0010321.249";
     private static final String INVALID_FILENAME = "invalid_name.txt";
-
     private static final String VALID_CONTENT = "H 20260907 182606 IMMEDIATE               \r\n" +
             "Кузнецов Олег                                                                                       1000401000050003              DR                 777\r\n" +
             "T                  1\r\n";
 
     @Nested
     class SuccessTests {
-
         @Test
         void validMultipartFileTest() throws Exception {
-
-
             Path tempFile = tempDir.resolve(VALID_FILENAME);
             Files.writeString(tempFile, VALID_CONTENT, WIN_1251);
-
             Path inProgressPath = tempDir.resolve("in_progress/" + VALID_FILENAME);
-
 
             when(validator.isValidFilename(any())).thenReturn(true);
             when(fileManager.writeFile(eq(VALID_FILENAME), any())).thenReturn(inProgressPath);
             doNothing().when(service).processFile(any(Path.class));
-
-
             mockMvc.perform(multipart(ENDPOINT)
                             .file(new MockMultipartFile(
                                     "file",
@@ -79,19 +69,14 @@ class MultipartControllerTest {
                             )))
                     .andExpect(status().isOk())
                     .andExpect(content().string("File processed successful for multipart"));
-
-
             verify(service, times(1)).processFile(inProgressPath);
         }
     }
 
     @Nested
     class ErrorTests {
-
         @Test
         void emptyFileTest() throws Exception {
-
-
             MockMultipartFile emptyFile = new MockMultipartFile(
                     "file",
                     VALID_FILENAME,
@@ -102,16 +87,11 @@ class MultipartControllerTest {
             mockMvc.perform(multipart(ENDPOINT).file(emptyFile))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("ERROR: file is empty"));
-
-
-
             verify(service, never()).processFile(any());
         }
 
-
         @Test
         void invalidFilenameTest() throws Exception {
-
             MockMultipartFile file = new MockMultipartFile(
                     "file",
                     INVALID_FILENAME,
@@ -120,26 +100,17 @@ class MultipartControllerTest {
             );
 
             when(validator.isValidFilename(any())).thenReturn(false);
-
-
             mockMvc.perform(multipart(ENDPOINT).file(file))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("Invalid filename format"));
-
-
             verify(service, never()).processFile(any());
         }
 
-
         @Test
         void wrongHttpMethodTest() throws Exception {
-
-
             mockMvc.perform(get(ENDPOINT))
                     .andExpect(status().isMethodNotAllowed());
-
             verify(service, never()).processFile(any());
-
         }
     }
 }

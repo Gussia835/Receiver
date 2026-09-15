@@ -2,6 +2,7 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.utils.Constants;
 import org.example.utils.filename.FileManager;
 import org.example.service.FileReceiverService;
 import org.example.service.impl.visitor.validator.EnrollValidator;
@@ -28,19 +29,16 @@ public class ChunkController {
     public ResponseEntity<String> getChunk(@RequestHeader("filename") String filename,
                                            InputStream requestStream
                                            ) {
-
         log.info("Received chunked stream for file: {}", filename);
 
         if (!validator.isValidFilename(Paths.get(filename))) {
-            log.error("Invalid filename format: {}", filename);
-            return ResponseEntity.badRequest().body("Invalid filename format");
+            log.error("Chunk upload rejected. {}: {}", Constants.MSG_INVALID_FILENAME, filename);
+            return ResponseEntity.badRequest().body(Constants.MSG_INVALID_FILENAME);
         }
-
-
         Path filepath = fileManager.saveChunk(filename, requestStream);
         service.processFile(filepath);
 
-        return ResponseEntity.ok("File fully uploaded and processing started");
+        return ResponseEntity.ok(Constants.MSG_UPLOAD_SUCCESS);
 
     }
 

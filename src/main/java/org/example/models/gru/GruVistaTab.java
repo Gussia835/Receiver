@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GruVistaTab {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
                     generator = "gru_vista_seq")
@@ -60,15 +59,12 @@ public class GruVistaTab {
     @Column(name = "FILE_ID", nullable = false)
     private Long fileId;
 
-
     @Column(name = "FOC_STATUS", nullable = false, length = 64)
     @Builder.Default
     private String focStatus = "WAIT";
 
-
     @Column(name = "FOC_TS")
     private LocalDateTime focTs;
-
 
     @Column(name = "FOC_TYPE", length = 10)
     private String focType;
