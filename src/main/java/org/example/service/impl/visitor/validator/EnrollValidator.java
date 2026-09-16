@@ -135,7 +135,7 @@ public class EnrollValidator {
      Вспомогательная: проверяет длину на валидность
      */
     private boolean isValidLen(String line, int len) {
-        if (line == null || line.length() < len) {
+        if (line == null || line.length() < len) { // todo может быть ситуации когда line.length() > len и это тоже не корректно
             log.warn("Line is missing or too short. Expected: {}, Actual: {}", len, line != null ? line.length() : 0);
             return false;
         }

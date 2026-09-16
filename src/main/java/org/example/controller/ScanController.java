@@ -42,7 +42,7 @@ public class ScanController {
             log.warn("directory is not exist scanner dont process file");
             return;
         }
-
+//todo почему неиспользуется REGEX_FILENAME
         try (Stream<Path> paths = Files.list(processDir)) {
             paths.filter(path -> {
                 String name = path.getFileName().toString();

@@ -23,6 +23,7 @@ public class GrpcController extends GrpcServiceGrpc.GrpcServiceImplBase {
     private final FileReceiverService service;
 
     @Override
+    //todo почему неиспользуется REGEX_FILENAME Для фильтрации
     public StreamObserver<FileChunk> upload(StreamObserver<ResponseGRPC> responseObs) {
         return new StreamObserver<>() {
             private String currFilename;

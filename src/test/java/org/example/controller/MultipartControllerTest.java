@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MultipartController.class)
+//todo Все взаимодействия через MockMVC перенести в интеграционные тесты
 class MultipartControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -68,7 +69,7 @@ class MultipartControllerTest {
                                     Files.readAllBytes(tempFile)
                             )))
                     .andExpect(status().isOk())
-                    .andExpect(content().string("File processed successful for multipart"));
+                    .andExpect(content().string("File processed successfully"));
             verify(service, times(1)).processFile(inProgressPath);
         }
     }
@@ -86,7 +87,7 @@ class MultipartControllerTest {
 
             mockMvc.perform(multipart(ENDPOINT).file(emptyFile))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("ERROR: file is empty"));
+                    .andExpect(content().string("File is empty"));
             verify(service, never()).processFile(any());
         }
 
