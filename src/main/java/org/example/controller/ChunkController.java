@@ -39,7 +39,5 @@ public class ChunkController {
         service.processFile(filepath);
 
         return ResponseEntity.ok(Constants.MSG_UPLOAD_SUCCESS);
-
     }
-
 }

@@ -105,4 +105,8 @@ protobuf {
     }
 }
 
+tasks.named('processIntegrationTestResources') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 check.dependsOn integrationTest

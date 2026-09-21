@@ -51,7 +51,8 @@ public class ScanController {
                 return !name.endsWith(Constants.EXT_SUCCESS) &&
                         !name.endsWith(Constants.EXT_ERROR) &&
                         !name.endsWith(Constants.EXT_IN_PROGRESS);
-            }).forEach(path -> {
+            }).filter(Files::isRegularFile)
+                    .forEach(path -> {
                 try {
                     log.info("get local file: {}", path.getFileName());
                     service.processFile(path);

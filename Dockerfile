@@ -6,7 +6,6 @@ COPY gradlew build.gradle settings.gradle ./
 COPY src ./src
 
 RUN chmod +x gradlew
-
 RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
@@ -16,14 +15,6 @@ COPY --from=builder /app/build/libs/Receiver-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 666 6666
 
-CMD ["java", \
-     "-Dspring.config.additional-location=file:/app/config/application.yml", \
-     "-Dlogging.config=file:/app/config/logback.xml", \
-     "-jar", "app.jar"]
-
-
-
-
-
+CMD ["java", "-jar", "app.jar"]
 
 

@@ -1,19 +1,13 @@
 server:
   port: 666
   ssl:
-    enabled: true
-    key-store: classpath:keystore.p12
-    key-store-type: PKCS12
-    key-store-password: 123456789
-    key-alias: tomcat
+    enabled: false
 
 grpc:
   server:
     port: 6666
     security:
-      enabled: true
-      certificateChain: classpath:server.crt
-      privateKey: classpath:server.key
+      enabled: false
 
 receiver:
   datasource:
@@ -45,5 +39,5 @@ scheduler:
 app:
   filespaths:
     process-dir: D:/job/FoodCards/incoming
-    target-dir: D:/job/FoodCards
+    target-dir: D:/job/FoodCards/target
 

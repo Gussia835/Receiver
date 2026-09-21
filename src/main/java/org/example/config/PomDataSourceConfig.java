@@ -14,6 +14,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 import jakarta.persistence.EntityManagerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 @EnableJpaRepositories(
         basePackages = "org.example.repository.pom",
@@ -49,10 +52,16 @@ public class PomDataSourceConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
                                                 EntityManagerFactoryBuilder builder,
                                                 @Qualifier("pomDataSource") DataSource dataSource) {
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.hbm2ddl.create_namespaces", "true");
+
         return builder
                 .dataSource(dataSource)
                 .packages("org.example.models.pom")
                 .persistenceUnit("pom")
+                .properties(properties)
                 .build();
     }
 

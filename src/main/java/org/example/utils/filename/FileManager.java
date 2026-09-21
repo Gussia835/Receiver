@@ -137,7 +137,7 @@ public class FileManager {
             String filename = filepath.getFileName().toString();
             String newFilename = FileNaemUtils.replaceExtension(filename, status);
             Path targetFile = target.resolve(newFilename);
-            Files.move(filepath, targetFile, StandardCopyOption.ATOMIC_MOVE);
+            Files.move(filepath, targetFile, StandardCopyOption.REPLACE_EXISTING);
 
             return targetFile;
         } catch (IOException e) {
