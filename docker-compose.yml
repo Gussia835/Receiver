@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: pom_db
+    environment:
+      POSTGRES_DB: pom_db
+      POSTGRES_USER: pom
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - foodcards-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U pom -d pom_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  oracle:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: gru_db
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_SYS_PASSWORD}
+      APP_USER: GRU
+      APP_USER_PASSWORD: ${GRU_APP_PASSWORD}
+    ports:
+      - "1521:1521"
+    networks:
+      - foodcards-network
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD-SHELL", "ls /opt/oracle/oradata/XE"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+
+  receiver:
+    build: ./Receiver
+    container_name: receiver
+    ports:
+      - "666:666"
+      - "6666:6666"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - RECEIVER_DATASOURCE_POM_URL=jdbc:postgresql://postgres:5432/pom_db
+      - RECEIVER_DATASOURCE_POM_USERNAME=pom
+      - RECEIVER_DATASOURCE_POM_PASSWORD=${POSTGRES_PASSWORD}
+      - RECEIVER_DATASOURCE_GRU_URL=jdbc:oracle:thin:@oracle:1521/XEPDB1
+      - RECEIVER_DATASOURCE_GRU_USERNAME=GRU
+      - RECEIVER_DATASOURCE_GRU_PASSWORD=${GRU_APP_PASSWORD}
+      - APP_FILESPATHS_PROCESS-DIR=/app/incoming
+      - APP_FILESPATHS_TARGET-DIR=/app/target
+    volumes:
+      - ./incoming:/app/incoming
+      - ./target:/app/target
+    depends_on:
+      postgres:
+        condition: service_healthy
+      oracle:
+        condition: service_healthy
+    networks:
+      - foodcards-network
+
+  generator:
+    build: ./FoodCards
+    container_name: generator
+    ports:
+      - "90:90"
+    environment:
+      - SEND_URL=${SEND_URL}
+      - GRPC_HOST=${GRPC_HOST}
+      - GRPC_PORT=${GRPC_PORT}
+    volumes:
+      - generator_output:/app/out/cards
+    depends_on:
+      - receiver
+    networks:
+      - foodcards-network
+
+volumes:
+  postgres_data:
+  oracle_data:
+  generator_output:
+
+networks:
+  foodcards-network:
+    driver: bridge

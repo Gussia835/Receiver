@@ -12,22 +12,21 @@ grpc:
 receiver:
   datasource:
     pom:
-      url: jdbc:postgresql://localhost:5434/pom_db
+      url: jdbc:postgresql://postgres:5432/pom_db
       username: pom
-      password: postgres
+      password: ${POSTGRES_PASSWORD}
       driver-class-name: org.postgresql.Driver
-
     gru:
-      url: jdbc:oracle:thin:@localhost:1521/XEPDB1
+      url: jdbc:oracle:thin:@//oracle:1521/XEPDB1
       username: GRU
-      password: gru_password
+      password: ${GRU_APP_PASSWORD}
       driver-class-name: oracle.jdbc.OracleDriver
 
 spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
 
 scheduler:
   scan:
@@ -38,6 +37,5 @@ scheduler:
 
 app:
   filespaths:
-    process-dir: D:/job/FoodCards/incoming
-    target-dir: D:/job/FoodCards/target
-
+    process-dir: /app/incoming
+    target-dir: /app/target
