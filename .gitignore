@@ -43,7 +43,18 @@ bin/
 *.key
 
 
+
+incoming/
+target/
+generator_output/
+out/
+postgres_data/
+oracle_data/
 logs/
 server.crt
 server.key
-src/main/resources/keystore.p12
+**/src/main/resources/keystore.p12
+
+.env
+.env.local
+*.env
